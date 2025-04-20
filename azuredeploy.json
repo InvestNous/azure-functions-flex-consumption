@@ -40,6 +40,14 @@
         },
         "alwaysOn": {
             "type": "Bool"
+        },
+        "functionAppName": {
+            "type": "String",
+            "defaultValue": "myFunctionApp"
+        },
+        "functionAppRuntimeVersion": {
+            "type": "String",
+            "defaultValue": "~4"
         }
     },
     "variables": {

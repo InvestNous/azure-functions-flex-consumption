@@ -41,6 +41,13 @@
       },
       "alwaysOn": {
           "value": false
+      },
+      "functionAppName": {
+          "value": "[YOUR-AZURE-FUNCTION-APP-NAME]" 
+      },
+      "functionAppRuntimeVersion": {
+          "value": "~4" 
       }
   }
 }
+
