@@ -5,10 +5,6 @@
         "subscriptionId": {
             "type": "String"
         },
-        "resourceGroup": {
-            "type": "String",
-            "defaultValue": "apis-prod-eastus2"
-        },
         "name": {
             "type": "String"
         },
@@ -40,7 +36,8 @@
             "type": "String"
         },
         "serverFarmResourceGroup": {
-            "type": "String"
+            "type": "String",
+            "defaultValue": "apis-prod-eastus2"
         },
         "alwaysOn": {
             "type": "Bool"
@@ -281,14 +278,14 @@
                             "apiVersion": "2022-05-01",
                             "name": "[concat(parameters('storageAccountName'), '/default/', parameters('storageBlobContainerName'))]",
                             "dependsOn": [
-                                "[resourceId(parameters('resourceGroup'), 'Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccountName'), 'default')]"
+                                "[resourceId('apis-prod-eastus2','Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccountName'), 'default')]"
                             ]
                         }
                     ]
                 }
             },
             "subscriptionId": "[parameters('subscriptionId')]",
-            "resourceGroup": "[parameters('resourceGroup')]"
+            "resourceGroup": "apis-prod-eastus2"
         }
     ]
 }
