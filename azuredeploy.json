@@ -281,14 +281,14 @@
                             "apiVersion": "2022-05-01",
                             "name": "[concat(parameters('storageAccountName'), '/default/', parameters('storageBlobContainerName'))]",
                             "dependsOn": [
-                                "[resourceId('apis-prod-eastus2','Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccountName'), 'default')]"
+                                "[resourceId(parameters('resourceGroupName'), 'Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccountName'), 'default')]"
                             ]
                         }
                     ]
                 }
             },
             "subscriptionId": "[parameters('subscriptionId')]",
-            "resourceGroup": "apis-prod-eastus2"
+            "resourceGroup": "[parameters('resourceGroupName')]"
         }
     ]
 }
