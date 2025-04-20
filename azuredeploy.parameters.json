@@ -1,25 +1,46 @@
+// This file contains the parameters for deploying an Azure Function App with a specific configuration.
 {
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "location": {
-      "value": "eastus2"
-    },
-    "functionPlanName": {
-      "value": "[YOUR-AZURE-FUNCTION-PLAN-NAME]"
-    },
-    "functionAppName": {
-      "value": "[YOUR-AZURE-FUNCTION-APP-NAME]"
-    },
-    "functionAppRuntime": {
-      "value": "[YOUR-FUNCTION-APP-RUNTIME-NAME]"
-    },    
-    "functionAppRuntimeVersion": {
-      "value": "[YOUR-FUNCTION-APP-RUNTIME-VERSION]"
-    },
-    "storageAccountName": {
-      "value": "funcprod01"
-    }
+      "subscriptionId": {
+          "value": "fd9adb24-28d9-4bdf-9413-f9e7790333a9"
+      },
+      "name": {
+          "value": "[YOUR-AZURE-FUNCTION-APP-NAME]"
+      },
+      "location": {
+          "value": "East US 2"
+      },
+      "storageBlobContainerName": {
+          "value": "[YOUR-AZURE-FUNCTION-APP-NAME]"
+      },
+      "storageAccountName": {
+          "value": "funcprod01"
+      },
+      "sku": {
+          "value": "FlexConsumption"
+      },
+      "skuCode": {
+          "value": "FC1"
+      },
+      "workerSize": {
+          "value": "0"
+      },
+      "workerSizeId": {
+          "value": "0"
+      },
+      "numberOfWorkers": {
+          "value": "1"
+      },
+      "hostingPlanName": {
+          "value": "ASP-[YOUR-AZURE-FUNCTION-APP-NAME]"
+      },
+      "serverFarmResourceGroup": {
+          "value": "apis-prod-eastus2"
+      },
+      "alwaysOn": {
+          "value": false
+      }
   }
 }
-

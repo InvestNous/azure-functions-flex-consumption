@@ -1,175 +1,282 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "parameters": {
-    "location": {
-      "type": "string",
-      "allowedValues": [
-        "eastus2"
-      ],
-      "defaultValue": "eastus2"
-    },
-    "functionPlanName": {
-      "type": "string"
-    },
-    "functionAppName": {
-      "type": "string"
-    },
-    "functionAppRuntime": {
-      "type": "string",
-      "allowedValues": [
-        "dotnet-isolated",
-        "python",
-        "java",
-        "node",
-        "powerShell"
-      ],
-      "defaultValue": "dotnet-isolated"
-    },
-    "functionAppRuntimeVersion": {
-      "type": "string",
-      "allowedValues": [
-        "3.10",
-        "3.11",
-        "7.4",
-        "8.0",
-        "9.0",
-        "10",
-        "11",
-        "17",
-        "20"
-      ],
-      "defaultValue": "9.0"      
-    },
-    "storageAccountName": {
-      "type": "string"
-    },
-    "maximumInstanceCount": {
-    "type": "int",
-    "defaultValue": 100
-    },
-    "instanceMemoryMB": {
-      "type": "int",
-      "allowedValues": [
-        512,
-        2048,        
-        4096
-      ],
-    "defaultValue": 2048
-    }
-  },
-  "variables": {
-    "resourceToken": "[toLower(uniqueString(subscription().id, resourceGroup().name, parameters('location')))]",
-    "deploymentStorageContainerName": "[concat('app-package-', take(parameters('functionAppName'), 32),'-', take(variables('resourceToken'), 7))]",
-    "storageRoleDefinitionId": "b7e6dc6d-f1e8-4753-8033-0f276bb0955b" //Storage Blob Data Owner role
-
-  },
-  "resources": [
-    {
-      "type": "Microsoft.Storage/storageAccounts",
-      "apiVersion": "2023-01-01",
-      "name": "[parameters('storageAccountName')]",
-      "location": "[parameters('location')]",
-      "sku": {
-          "name": "Standard_LRS",
-          "tier": "Standard"
-      },
-      "kind": "StorageV2",
-      "properties": {
-          "accessTier": "Hot",
-          "allowSharedKeyAccess": false
-      }
-    },
-    {
-      "type": "Microsoft.Storage/storageAccounts/blobServices",
-      "apiVersion": "2023-01-01",
-      "name": "[format('{0}/{1}', parameters('storageAccountName'), 'default')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
-      ]
-    },
-    {
-      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
-      "apiVersion": "2023-01-01",
-      "name": "[format('{0}/{1}/{2}', parameters('storageAccountName'), 'default', variables('deploymentStorageContainerName'))]",
-      "properties": {
-        "publicAccess": "None"
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccountName'), 'default')]"
-      ]
-    },
-    {
-      "type": "Microsoft.Web/serverfarms",
-      "apiVersion": "2023-12-01",
-      "name": "[parameters('functionPlanName')]",
-      "location": "[parameters('location')]",
-      "kind": "functionapp",
-      "sku": {
-        "tier": "FlexConsumption",
-        "name": "FC1"
-      },
-      "properties": {
-        "reserved": true
-      }
-    },
-    {
-      "type": "Microsoft.Web/sites",
-      "apiVersion": "2023-12-01",
-      "name": "[parameters('functionAppName')]",
-      "location": "[parameters('location')]",
-      "kind": "functionapp,linux",
-      "identity": {
-        "type": "SystemAssigned"
-      },
-      "properties": {
-        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('functionPlanName'))]",
-        "functionAppConfig": {
-          "deployment": {
-            "storage": {
-              "type": "blobContainer",
-              "value": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))).primaryEndpoints.blob, variables('deploymentStorageContainerName'))]",
-              "authentication": {
-                "type": "SystemAssignedIdentity"
-              }
-            }
-          },
-          "scaleAndConcurrency": {
-            "maximumInstanceCount": "[parameters('maximumInstanceCount')]",
-            "instanceMemoryMB": "[parameters('instanceMemoryMB')]"
-          },
-          "runtime": { 
-            "name": "[parameters('functionAppRuntime')]", 
-            "version": "[parameters('functionAppRuntimeVersion')]" 
-          }
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "subscriptionId": {
+            "type": "String"
         },
-        "siteConfig": {
-          "appSettings": [
-            {
-              "name": "AzureWebJobsStorage__accountName",
-              "value": "[parameters('storageAccountName')]"
-            }
-          ]
+        "name": {
+            "type": "String"
+        },
+        "location": {
+            "type": "String"
+        },
+        "storageBlobContainerName": {
+            "type": "String"
+        },
+        "storageAccountName": {
+            "type": "String"
+        },
+        "sku": {
+            "type": "String"
+        },
+        "skuCode": {
+            "type": "String"
+        },
+        "workerSize": {
+            "type": "String"
+        },
+        "workerSizeId": {
+            "type": "String"
+        },
+        "numberOfWorkers": {
+            "type": "String"
+        },
+        "hostingPlanName": {
+            "type": "String"
+        },
+        "serverFarmResourceGroup": {
+            "type": "String"
+        },
+        "alwaysOn": {
+            "type": "Bool"
         }
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.Web/serverfarms', parameters('functionPlanName'))]",
-        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
-      ]
     },
-    { //Gives the function app access to the storage account using system assigned managed identity
-      "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2020-04-01-preview",
-      "name": "[guid(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), variables('storageRoleDefinitionId'))]",
-      "scope": "[concat('Microsoft.Storage/storageAccounts', '/', parameters('storageAccountName'))]",
-      "properties": {
-        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('storageRoleDefinitionId'))]",
-        "principalId": "[reference(resourceId('Microsoft.Web/sites', parameters('functionAppName')), '2023-12-01', 'Full').identity.principalId]"
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
-        "[resourceId('Microsoft.Web/sites', parameters('functionAppName'))]"
-      ]
-    }
-  ]
+    "variables": {
+        "inboundSubnetDeployment": "inboundSubnetDeployment",
+        "outboundSubnetDeployment": "outboundSubnetDeployment",
+        "connectedServiceSubnetDeployment": "connectedServiceSubnetDeployment",
+        "inboundPrivateDnsZoneDeploymentName": "privatelink.azurewebsites.net-deployment",
+        "inboundPrivateDnsZoneName": "privatelink.azurewebsites.net"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2022-03-01",
+            "name": "[parameters('name')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]",
+                "[variables('inboundSubnetDeployment')]"
+            ],
+            "tags": {
+                "Criticality": "Mission_Critical"
+            },
+            "kind": "functionapp,linux",
+            "properties": {
+                "name": "[parameters('name')]",
+                "siteConfig": {
+                    "appSettings": [
+                        {
+                            "name": "DEPLOYMENT_STORAGE_CONNECTION_STRING",
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('storageAccountName'),';AccountKey=',listKeys(resourceId('fd9adb24-28d9-4bdf-9413-f9e7790333a9','apis-prod-eastus2','Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2022-05-01').keys[0].value,';EndpointSuffix=','core.windows.net')]"
+                        },
+                        {
+                            "name": "AzureWebJobsStorage",
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('storageAccountName'),';AccountKey=',listKeys(resourceId('fd9adb24-28d9-4bdf-9413-f9e7790333a9','apis-prod-eastus2','Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2022-05-01').keys[0].value,';EndpointSuffix=','core.windows.net')]"
+                        }
+                    ],
+                    "cors": {
+                        "allowedOrigins": [
+                            "https://portal.azure.com"
+                        ]
+                    }
+                },
+                "clientAffinityEnabled": false,
+                "virtualNetworkSubnetId": null,
+                "functionAppConfig": {
+                    "deployment": {
+                        "storage": {
+                            "type": "blobContainer",
+                            "value": "[concat('https://', parameters('storageAccountName'), '.blob.', 'core.windows.net', '/', parameters('storageBlobContainerName'))]",
+                            "authentication": {
+                                "type": "StorageAccountConnectionString",
+                                "storageAccountConnectionStringName": "DEPLOYMENT_STORAGE_CONNECTION_STRING"
+                            }
+                        }
+                    },
+                    "scaleAndConcurrency": {
+                        "maximumInstanceCount": 100,
+                        "instanceMemoryMB": 2048
+                    },
+                    "runtime": {
+                        "name": "python",
+                        "version": "3.11"
+                    }
+                },
+                "publicNetworkAccess": "Disabled",
+                "httpsOnly": true,
+                "serverFarmId": "[concat('/subscriptions/', parameters('subscriptionId'),'/resourcegroups/', parameters('serverFarmResourceGroup'), '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]"
+            },
+            "resources": [
+                {
+                    "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies",
+                    "apiVersion": "2022-09-01",
+                    "name": "[concat(parameters('name'), '/scm')]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Web/sites', parameters('name'))]"
+                    ],
+                    "properties": {
+                        "allow": false
+                    }
+                },
+                {
+                    "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies",
+                    "apiVersion": "2022-09-01",
+                    "name": "[concat(parameters('name'), '/ftp')]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Web/sites', parameters('name'))]"
+                    ],
+                    "properties": {
+                        "allow": false
+                    }
+                }
+            ]
+        },
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2018-11-01",
+            "name": "[parameters('hostingPlanName')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [],
+            "tags": {
+                "Criticality": "Mission_Critical"
+            },
+            "sku": {
+                "Tier": "[parameters('sku')]",
+                "Name": "[parameters('skuCode')]"
+            },
+            "kind": "linux",
+            "properties": {
+                "name": "[parameters('hostingPlanName')]",
+                "workerSize": "[parameters('workerSize')]",
+                "workerSizeId": "[parameters('workerSizeId')]",
+                "numberOfWorkers": "[parameters('numberOfWorkers')]",
+                "reserved": true,
+                "zoneRedundant": false
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-07-01",
+            "name": "[variables('inboundSubnetDeployment')]",
+            "dependsOn": [],
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "variables": {},
+                    "resources": [
+                        {
+                            "type": "Microsoft.Network/virtualNetworks/subnets",
+                            "apiVersion": "2020-07-01",
+                            "name": "vnet-LZ-Prod-eastus2-01/Functions",
+                            "properties": {
+                                "delegations": [],
+                                "serviceEndpoints": [],
+                                "provisioningState": "Succeeded",
+                                "addressPrefixes": [
+                                    "10.1.2.0/24"
+                                ],
+                                "ipConfigurations": [
+                                    {
+                                        "id": "/subscriptions/fd9adb24-28d9-4bdf-9413-f9e7790333a9/resourceGroups/APIS-PROD-EASTUS2/providers/Microsoft.Network/networkInterfaces/PROD-AML-API-INVESTNOUS-PE-NIC/ipConfigurations/PRIVATEENDPOINTIPCONFIG.95E7F0D6-6D91-49F0-9FB1-E5B1E9D17117"
+                                    }
+                                ],
+                                "privateEndpoints": [
+                                    {
+                                        "id": "/subscriptions/fd9adb24-28d9-4bdf-9413-f9e7790333a9/resourceGroups/APIS-PROD-EASTUS2/providers/Microsoft.Network/privateEndpoints/PROD-AML-API-INVESTNOUS-PE"
+                                    }
+                                ],
+                                "purpose": "PrivateEndpoints",
+                                "privateEndpointNetworkPolicies": "Disabled",
+                                "privateLinkServiceNetworkPolicies": "Enabled"
+                            }
+                        }
+                    ]
+                }
+            },
+            "subscriptionId": "fd9adb24-28d9-4bdf-9413-f9e7790333a9",
+            "resourceGroup": "Networks-Prod-EastUS2-01"
+        },
+        {
+            "type": "Microsoft.Network/privateEndpoints",
+            "apiVersion": "2021-02-01",
+            "name": "prod-AI-bot-api-investnous-01",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/Sites', parameters('name'))]"
+            ],
+            "properties": {
+                "subnet": {
+                    "id": "/subscriptions/fd9adb24-28d9-4bdf-9413-f9e7790333a9/resourceGroups/Networks-Prod-EastUS2-01/providers/Microsoft.Network/virtualNetworks/vnet-LZ-Prod-eastus2-01/subnets/Functions"
+                },
+                "privateLinkServiceConnections": [
+                    {
+                        "name": "prod-AI-bot-api-investnous-01",
+                        "properties": {
+                            "privateLinkServiceId": "[resourceId('Microsoft.Web/Sites', parameters('name'))]",
+                            "groupIds": [
+                                "sites"
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+            "apiVersion": "2020-03-01",
+            "name": "[concat('prod-AI-bot-api-investnous-01', '/', 'default')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "prod-AI-bot-api-investnous-01"
+            ],
+            "properties": {
+                "privateDnsZoneConfigs": [
+                    {
+                        "name": "[format('{0}-config', variables('inboundPrivateDnsZoneName'))]",
+                        "properties": {
+                            "privateDnsZoneId": "/subscriptions/fd9adb24-28d9-4bdf-9413-f9e7790333a9/resourceGroups/Networks-Prod-EastUS2-01/providers/Microsoft.Network/privateDnsZones/privatelink.azurewebsites.net"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2021-04-01",
+            "name": "StorageBlobContainerTemplate",
+            "dependsOn": [],
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.1",
+                    "parameters": {},
+                    "variables": {},
+                    "resources": [
+                        {
+                            "name": "[concat(parameters('storageAccountName'), '/default')]",
+                            "type": "Microsoft.Storage/storageAccounts/blobServices",
+                            "apiVersion": "2022-05-01",
+                            "dependsOn": []
+                        },
+                        {
+                            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+                            "apiVersion": "2022-05-01",
+                            "name": "[concat(parameters('storageAccountName'), '/default/', parameters('storageBlobContainerName'))]",
+                            "dependsOn": [
+                                "[resourceId('apis-prod-eastus2','Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccountName'), 'default')]"
+                            ]
+                        }
+                    ]
+                }
+            },
+            "subscriptionId": "[parameters('subscriptionId')]",
+            "resourceGroup": "apis-prod-eastus2"
+        }
+    ]
 }
