@@ -5,6 +5,10 @@
         "subscriptionId": {
             "type": "String"
         },
+        "resourceGroupName": {
+            "type": "String",
+            "defaultValue": "apis-prod-eastus2"
+        },
         "name": {
             "type": "String"
         },
