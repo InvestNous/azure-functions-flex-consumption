@@ -259,25 +259,6 @@
                 ]
             }
         },
-                {
-            "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
-            "apiVersion": "2020-03-01",
-            "name": "[concat('prod-AI-bot-api-investnous-01', '/', 'default')]",
-            "location": "[parameters('location')]",
-            "dependsOn": [
-                "prod-AI-bot-api-investnous-01"
-            ],
-            "properties": {
-                "privateDnsZoneConfigs": [
-                    {
-                        "name": "[format('{0}-config', variables('inboundPrivateDnsZoneName'))]",
-                        "properties": {
-                            "privateDnsZoneId": "/subscriptions/fd9adb24-28d9-4bdf-9413-f9e7790333a9/resourceGroups/Networks-Prod-EastUS2-01/providers/Microsoft.Network/privateDnsZones/privatelink.azurewebsites.net"
-                        }
-                    }
-                ]
-            }
-        },
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
