@@ -3,7 +3,8 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "subscriptionId": {
-            "type": "String"
+            "type": "String",
+            "defaultValue": "fd9adb24-28d9-4bdf-9413-f9e7790333a9"
         },
         "name": {
             "type": "String"
