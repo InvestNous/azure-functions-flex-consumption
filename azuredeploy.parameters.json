@@ -37,7 +37,7 @@
           "value": "ASP-[YOUR-AZURE-FUNCTION-APP-NAME]"
       },
       "serverFarmResourceGroup": {
-          "value": "apis-prod-eastus2"
+          "value": "[YOUR-AZURE-FUNCTION-APP-NAME]"
       },
       "alwaysOn": {
           "value": false
