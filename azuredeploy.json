@@ -43,7 +43,7 @@
         },
         "hostingPlanName": {
             "type": "String",
-            "defaultValue": "ASP-[YOUR-AZURE-FUNCTION-APP-NAME]"
+            "defaultValue": "[concat('ASP-',parameters('name'))]"
         },
         "serverFarmResourceGroup": {
             "type": "String",
