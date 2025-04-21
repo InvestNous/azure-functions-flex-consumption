@@ -228,7 +228,7 @@
                 },
                 "privateLinkServiceConnections": [
                     {
-                        "name": "prod-AI-bot-api-investnous-01",
+                        "name": "[parameters('name')]",
                         "properties": {
                             "privateLinkServiceId": "[resourceId('Microsoft.Web/Sites', parameters('name'))]",
                             "groupIds": [
@@ -245,9 +245,6 @@
             "apiVersion": "2020-03-01",
             "name": "[concat(parameters('name'), '/', 'default')]",
             "location": "[parameters('location')]",
-            "dependsOn": [
-                "[concat('pe-',parameters('name'))]"
-            ],
             "properties": {
                 "privateDnsZoneConfigs": [
                     {
