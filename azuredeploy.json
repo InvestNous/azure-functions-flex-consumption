@@ -7,7 +7,8 @@
             "defaultValue": "fd9adb24-28d9-4bdf-9413-f9e7790333a9"
         },
         "name": {
-            "type": "String"
+            "type": "String",
+            "defaultValue": "prod-azf-investnous-NAME-01"
         },
         "location": {
             "type": "String",
@@ -59,7 +60,8 @@
         "outboundSubnetDeployment": "outboundSubnetDeployment",
         "connectedServiceSubnetDeployment": "connectedServiceSubnetDeployment",
         "inboundPrivateDnsZoneDeploymentName": "privatelink.azurewebsites.net-deployment",
-        "inboundPrivateDnsZoneName": "privatelink.azurewebsites.net"
+        "inboundPrivateDnsZoneName": "privatelink.azurewebsites.net",
+        "name": "prod-azf-investnous-NAME-01"
     },
     "resources": [
         {
