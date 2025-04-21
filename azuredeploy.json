@@ -8,7 +8,7 @@
         },
         "name": {
             "type": "String",
-            "defaultValue": "prod-azf-investnous-NAME-01"
+            "defaultValue": "prod-azf-investnous-lowercasename-01"
         },
         "location": {
             "type": "String",
@@ -218,7 +218,7 @@
         {
             "type": "Microsoft.Network/privateEndpoints",
             "apiVersion": "2021-02-01",
-            "name": "prod-AI-bot-api-investnous-01",
+            "name": "[concat('pe-',parameters('name'))]",
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Web/Sites', parameters('name'))]"
@@ -243,10 +243,10 @@
         {
             "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
             "apiVersion": "2020-03-01",
-            "name": "[concat('prod-AI-bot-api-investnous-01', '/', 'default')]",
+            "name": "[concat(parameters('name'), '/', 'default')]",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "prod-AI-bot-api-investnous-01"
+                "[parameters('name')]"
             ],
             "properties": {
                 "privateDnsZoneConfigs": [
