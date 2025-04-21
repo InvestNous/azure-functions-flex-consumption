@@ -10,46 +10,48 @@
             "type": "String"
         },
         "location": {
-            "type": "String"
+            "type": "String",
+            "defaultValue": "East US 2"
         },
         "storageBlobContainerName": {
-            "type": "String"
+            "type": "String",
+            "defaultValue": "[concat(parameters('name'), '-container')]"
         },
         "storageAccountName": {
-            "type": "String"
+            "type": "String",
+            "defaultValue": "funcprod01"
         },
         "sku": {
-            "type": "String"
+            "type": "String",
+            "defaultValue": "FlexConsumption"
         },
         "skuCode": {
-            "type": "String"
+            "type": "String",
+            "defaultValue": "FC1"
         },
         "workerSize": {
-            "type": "String"
+            "type": "String",
+            "defaultValue": "0"
         },
         "workerSizeId": {
-            "type": "String"
+            "type": "String",
+            "defaultValue": "0"
         },
         "numberOfWorkers": {
-            "type": "String"
+            "type": "String",
+            "defaultValue": "1"
         },
         "hostingPlanName": {
-            "type": "String"
+            "type": "String",
+            "defaultValue": "ASP-[YOUR-AZURE-FUNCTION-APP-NAME]"
         },
         "serverFarmResourceGroup": {
             "type": "String",
             "defaultValue": "apis-prod-eastus2"
         },
         "alwaysOn": {
-            "type": "Bool"
-        },
-        "functionAppName": {
-            "type": "String",
-            "defaultValue": "myFunctionApp"
-        },
-        "functionAppRuntimeVersion": {
-            "type": "String",
-            "defaultValue": "~4"
+            "type": "Bool",
+            "defaultValue": false
         }
     },
     "variables": {
