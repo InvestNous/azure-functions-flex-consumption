@@ -228,7 +228,7 @@
                 },
                 "privateLinkServiceConnections": [
                     {
-                        "name": "[parameters('name')]",
+                        "name": "[concat('pe-',parameters('name'))]",
                         "properties": {
                             "privateLinkServiceId": "[resourceId('Microsoft.Web/Sites', parameters('name'))]",
                             "groupIds": [
@@ -243,10 +243,10 @@
           
             "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
             "apiVersion": "2020-03-01",
-            "name": "[concat(parameters('name'), '/', 'default')]",
+            "name": "[concat('pe-',parameters('name'), '/', 'default')]",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[parameters('name')]"
+                "[concat('pe-',parameters('name'))]"
             ],
             "properties": {
                 "privateDnsZoneConfigs": [
